@@ -1,5 +1,6 @@
 import random
 
+
 EASY_DIFFICULTY = 0.1
 MEDIUM_DIFFICULTY = 0.3
 HARD_DIFFICULTY = 0.5
@@ -118,7 +119,6 @@ def init_game(difficulty, num_cols, num_rows):
 
 
 def is_game_over(game_board, helper_board):
-
     for i in range(len(game_board)):
         for j in range(len(game_board[i])):
             if game_board[i][j] == '?' or helper_board[i][j] == '\u2691':
@@ -132,10 +132,9 @@ def play():
     num_rows = int(input("Enter number of rows for the board: "))
     num_cols = int(input("Enter number of columns for the board: "))
     difficulty = input("Enter difficulty: ")
+
     game_board, helper_board, num_mines = (
         init_game(difficulty, num_cols, num_rows))
-
-    print_board(helper_board)
 
     game_over = False
     while not game_over:

@@ -159,6 +159,9 @@ def play():
     print_board(game_board)
 
 
-if __name__ == "__main__":
-    random.seed(202)
-    play()
+
+
+
+# if __name__ == "__main__":
+#     random.seed(202)
+#     play()

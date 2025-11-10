@@ -48,7 +48,6 @@ def count_neighbours(board, row, col, value):
     neighbours = get_neighbour_positions(board, row, col)
 
     count = 0
-
     for pos in neighbours:
         if board[pos[0]][pos[1]] == value:
             count += 1
@@ -160,15 +159,32 @@ def play():
     print_board(game_board)
 
 
+def apply_click_to_neighbours(board, col, row, click_function):
+    neighbour_pos = get_neighbour_positions(board, row, col)
+
+    for pos in neighbour_pos:
+
+        if is_valid_position(board, pos[0], pos[1]):
+            adj_cell = board[pos[0]][pos[1]]
+
+            if adj_cell == '?':
+                click_function(pos[0], pos[1])
+
+
 def solve_cell(board, row, col, left_click, right_click):
+    main_cell = board[row][col]
 
-    if board[row][col] in "012345678" :
-        return
+    if main_cell in "012345678" :
+        adj_flags = count_neighbours(board, row, col, '\u2691')
+        adj_revealed = 8 - count_neighbours(board, row, col, '?')
+
+        if adj_flags == main_cell:
+            apply_click_to_neighbours(board, col, row, left_click)
+
+        if adj_revealed - adj_flags == 9 - main_cell :
+            apply_click_to_neighbours(board, col, row, right_click)
 
 
-
-    
-
-# if __name__ == "__main__":
-#     random.seed(202)
-#     play()
+if __name__ == "__main__":
+    random.seed(202)
+    play()

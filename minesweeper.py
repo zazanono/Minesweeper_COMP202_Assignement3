@@ -1,6 +1,4 @@
 import random
-import minesweeper_testing as mt
-
 
 EASY_DIFFICULTY = 0.1
 MEDIUM_DIFFICULTY = 0.3
@@ -56,21 +54,29 @@ def count_neighbours(board, row, col, value):
 
 
 def new_mine_position(board):
-    invalid_mine_pos = True
-
-    while invalid_mine_pos:
+    while True:
         rand_row = random.randint(0, len(board)-1)
         rand_col = random.randint(0, len(board[0])-1)
 
         if board[rand_row][rand_col] != -1:
-            board[rand_row][rand_col] = -1
-            invalid_mine_pos = False
+            return rand_row, rand_col
+
+
+def new_mine(board):
+    row, col = new_mine_position(board)
+
+    board[row][col] = -1
+
+    adj_pos = get_neighbour_positions(board, row, col)
+    for pos in adj_pos:
+        if board[pos[0]][pos[1]] != -1:
+            board[pos[0]][pos[1]] += 1
 
 
 def generate_helper_board(nb_rows, nb_cols, nb_mines):
     board = init_board(nb_rows, nb_cols, 0)
-    for _ in range(nb_mines):
-        new_mine_position(board)
+    for mines in range(nb_mines):
+        new_mine(board)
 
         for i in range(len(board)):
             for j in range(len(board[i])):
@@ -81,18 +87,17 @@ def generate_helper_board(nb_rows, nb_cols, nb_mines):
 
 
 def flag(board, row, col):
-    if board[row][col] == "?":
-        board[row][col] = "\u2691"
-
-    if board[row][col] != "\u2691":
-        board[row][col] = "?"
+    if board[row][col] == '?':
+        board[row][col] = '\u2691'
+    elif board[row][col] == '\u2691':
+        board[row][col] = '?'
 
 
 def reveal(helper_board, game_board, row, col):
     if helper_board[row][col] == -1:
         raise AssertionError("BOOM! You lost.")
     else :
-        game_board[row][col] = helper_board[row][col]
+        game_board[row][col] = str(helper_board[row][col])
 
 
 def print_board(board):
@@ -121,10 +126,9 @@ def init_game(difficulty, num_cols, num_rows):
 def is_game_over(game_board, helper_board):
     for i in range(len(game_board)):
         for j in range(len(game_board[i])):
-            if game_board[i][j] == '?' or helper_board[i][j] == '\u2691':
-                if helper_board[i][j] != -1:
-                    return False
-
+            # If this cell is safe (not a mine) and still '?', game not over
+            if helper_board[i][j] != -1 and game_board[i][j] == '?':
+                return False
     return True
 
 
@@ -140,7 +144,7 @@ def play():
     while not game_over:
         curr_mines = num_mines - count_total(game_board, "\u2691")
 
-        print("Current Board: (" + str(curr_mines) + " Mines remaining)")
+        print("Current Board: (" + str(curr_mines) + " mines remaining)")
         print_board(game_board)
 
         chosen_move = int(input("Choose 0 to reveal or 1 to flag: "))
@@ -174,15 +178,26 @@ def apply_click_to_neighbours(board, col, row, click_function):
 def solve_cell(board, row, col, left_click, right_click):
     main_cell = board[row][col]
 
-    if main_cell in "012345678" :
-        adj_flags = count_neighbours(board, row, col, '\u2691')
-        adj_revealed = 8 - count_neighbours(board, row, col, '?')
+    try:
+        main_cell = int(main_cell)
+    except ValueError:
+        return  # Not a digit, so exit the function
 
-        if adj_flags == main_cell:
-            apply_click_to_neighbours(board, col, row, left_click)
+    adj_flags = count_neighbours(board, row, col, '\u2691')
+    adj_revealed = 8 - count_neighbours(board, row, col, '?')
 
-        if adj_revealed - adj_flags == 9 - main_cell :
-            apply_click_to_neighbours(board, col, row, right_click)
+    if adj_flags == main_cell:
+        apply_click_to_neighbours(board, col, row, left_click)
+
+    if adj_revealed - adj_flags == 8 - main_cell :
+        apply_click_to_neighbours(board, col, row, right_click)
+
+
+def solve(board, left_click, right_click):
+    while count_total(board, '?') != 0:
+        for row in range(len(board)):
+            for col in range(len(board[row])):
+                solve_cell(board, row, col, left_click, right_click)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 import random
+import minesweeper_testing as mt
 
 
 EASY_DIFFICULTY = 0.1
@@ -159,8 +160,14 @@ def play():
     print_board(game_board)
 
 
+def solve_cell(board, row, col, left_click, right_click):
+
+    if board[row][col] in "012345678" :
+        return
 
 
+
+    
 
 # if __name__ == "__main__":
 #     random.seed(202)
